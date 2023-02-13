@@ -1,0 +1,535 @@
+{
+	"info": {
+		"_postman_id": "45e9805e-c61e-486a-9d49-24d8b93285ed",
+		"name": "Spotify API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21527530"
+	},
+	"item": [
+		{
+			"name": "Get User All Playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"var JsonData = pm.response.json();\r",
+							"pm.test(\"Valid User name\", () =>{\r",
+							"pm.expect(JsonData.items[0].owner.display_name).to.eql(\"Abhinay Ingle\");\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"User_id\",JsonData.items[0].owner.id)\r",
+							"pm.collectionVariables.set(\"Bollywood\",JsonData.items[0].id)\r",
+							"pm.collectionVariables.set(\"My Playlist #111\",JsonData.items[1].id)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/v1/me/playlists",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"me",
+						"playlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Search Track",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"// const response = pm.response.json().tracks.items;\r",
+							"// for(let i=0;i<response.length;i++)\r",
+							"// {\r",
+							"//     console.log(response[i].uri); \r",
+							"// }\r",
+							"\r",
+							"const response = pm.response.json().tracks.items;\r",
+							"\r",
+							"tracks =[];\r",
+							"response.forEach(function(track) {\r",
+							"    var tracksUri = track.uri; \r",
+							"    tracks.push(tracksUri);\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(\"Tracks_Uris\",tracks)\r",
+							"console.log(tracks)"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"search\",\"kk\");\r",
+							"pm.variables.set(\"type\",\"track\");\r",
+							"pm.variables.set(\"limit\",\"5\");\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{URL}}/v1/search?q={{search}}f&type={{type}}&limit={{limit}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"search"
+					],
+					"query": [
+						{
+							"key": "q",
+							"value": "{{search}}f"
+						},
+						{
+							"key": "type",
+							"value": "{{type}}"
+						},
+						{
+							"key": "limit",
+							"value": "{{limit}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create Playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});\r",
+							"\r",
+							"var JsonData = pm.response.json();\r",
+							"pm.test(\"Verify playlist name\", () =>{\r",
+							"pm.expect(JsonData.name).to.eql(pm.variables.get(\"PlaylistName\"))\r",
+							"});\r",
+							"\r",
+							"pm.collectionVariables.set(pm.variables.get(\"PlaylistName\"),JsonData.id)\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.variables.set(\"PlaylistName\",\"Bollywood New\");"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n\"name\":\"{{PlaylistName}}\",\r\n\"description\":\"New playlist description\",\r\n\"public\":false\r\n}"
+				},
+				"url": {
+					"raw": "{{URL}}/v1/users/{{User_id}}/playlists",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"users",
+						"{{User_id}}",
+						"playlists"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Add Tracks to Playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", () =>{\r",
+							"pm.response.to.have.status(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer BQBYZ-Yp_0Zq8RJcgwHTXveLrunwhXOJYSeIXCg6dba4N-tLHb4ic0J5-RB0UM0PvhH_VzxNtukPhkkuqQ3eyejHGbDNPYn0zsGOijKcvC06iT2pmfyA3vUs6UDzjQh0O6R0wy-M9dtYRYcWMMorkFEWwcF_gE68Z0O6TGweOE6LElQ5ZBBiGWoDWDwRIZsg8-8V85whQX8xpYJrsVxmA2eKYUNgwD4Na-Z3gMoU3Y1NiUKBHUp_XdbzdfWI4pJm5G1l4XthF4KR8GODviRfj9c5rse3eNy6AKoS8HTWP_37zoR1KXXnx7PNn7zvnU5HxT-_mQaGAS8aiQ"
+					}
+				],
+				"url": {
+					"raw": "{{URL}}/v1/playlists/{{Bollywood New}}/tracks?uris={{Tracks_Uris}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"playlists",
+						"{{Bollywood New}}",
+						"tracks"
+					],
+					"query": [
+						{
+							"key": "uris",
+							"value": "{{Tracks_Uris}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Playlist Tracks",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer BQCv7KXu2_h7Tq_p-wcHDYrcBQiUwHANYnVlwkyqBuxHVwr9fC4fL3hUzFd5oZiRWdSHv14EhWQwUezAEMNQbSGeDfhQqhE1RH8e82oYPQ7fn8q9jbxQ3Yp5BqAAHccUqyTs6c_MZZrr7f7mcw8PFok-al8uVlWHBoXTOJ87WDLkAn8WJZibwEYbcQ-LU56P2IODPKwjbdvvikJKAiJdRmGlwpmJ79-yXbvoCjSt1IS9rcWyjHP9PkF8Av1yP8LQi1M5riARSl3IW2zZlAFfOOoh11pSk70J1GRrfdJMJENwLOsjPfIEwtpkXY2C6ruYELNP_HYSDged1g"
+					}
+				],
+				"url": {
+					"raw": "https://api.spotify.com/v1/playlists/{{Bollywood New}}/tracks?market=ES",
+					"protocol": "https",
+					"host": [
+						"api",
+						"spotify",
+						"com"
+					],
+					"path": [
+						"v1",
+						"playlists",
+						"{{Bollywood New}}",
+						"tracks"
+					],
+					"query": [
+						{
+							"key": "market",
+							"value": "ES"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reorder Tracks From playlist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer BQBYZ-Yp_0Zq8RJcgwHTXveLrunwhXOJYSeIXCg6dba4N-tLHb4ic0J5-RB0UM0PvhH_VzxNtukPhkkuqQ3eyejHGbDNPYn0zsGOijKcvC06iT2pmfyA3vUs6UDzjQh0O6R0wy-M9dtYRYcWMMorkFEWwcF_gE68Z0O6TGweOE6LElQ5ZBBiGWoDWDwRIZsg8-8V85whQX8xpYJrsVxmA2eKYUNgwD4Na-Z3gMoU3Y1NiUKBHUp_XdbzdfWI4pJm5G1l4XthF4KR8GODviRfj9c5rse3eNy6AKoS8HTWP_37zoR1KXXnx7PNn7zvnU5HxT-_mQaGAS8aiQ"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"range_start\":0,\"insert_before\":5,\"range_length\":2}"
+				},
+				"url": {
+					"raw": "{{URL}}/v1/playlists/{{Bollywood New}}/tracks",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"playlists",
+						"{{Bollywood New}}",
+						"tracks"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Replace All Tracks From Playlist",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"Tracks_Replace\",[\"spotify:track:3str3nwRy76ZWObEtsBHGq\",\"spotify:track:4mbJ90SPdL9WdItbkWDkpv\",\"spotify:track:5jTlZXaSSsNuNEAQzEldlz\",\"spotify:track:6G8LGTxKurKEzGW3DV6HEH\"])"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 201\", function () {\r",
+							"    pm.response.to.have.status(201);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer BQBYZ-Yp_0Zq8RJcgwHTXveLrunwhXOJYSeIXCg6dba4N-tLHb4ic0J5-RB0UM0PvhH_VzxNtukPhkkuqQ3eyejHGbDNPYn0zsGOijKcvC06iT2pmfyA3vUs6UDzjQh0O6R0wy-M9dtYRYcWMMorkFEWwcF_gE68Z0O6TGweOE6LElQ5ZBBiGWoDWDwRIZsg8-8V85whQX8xpYJrsVxmA2eKYUNgwD4Na-Z3gMoU3Y1NiUKBHUp_XdbzdfWI4pJm5G1l4XthF4KR8GODviRfj9c5rse3eNy6AKoS8HTWP_37zoR1KXXnx7PNn7zvnU5HxT-_mQaGAS8aiQ"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"range_start\": 0,\r\n  \"insert_before\": 2,\r\n  \"range_length\": 2\r\n}"
+				},
+				"url": {
+					"raw": "{{URL}}/v1/playlists/{{Bollywood}}/tracks?uris={{Tracks_Replace}}",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"playlists",
+						"{{Bollywood}}",
+						"tracks"
+					],
+					"query": [
+						{
+							"key": "uris",
+							"value": "{{Tracks_Replace}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete Tracks From Playlist",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.collectionVariables.set(\"Tracks_Delete\",\"spotify:track:4mbJ90SPdL9WdItbkWDkpv\")"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/json"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer BQBYZ-Yp_0Zq8RJcgwHTXveLrunwhXOJYSeIXCg6dba4N-tLHb4ic0J5-RB0UM0PvhH_VzxNtukPhkkuqQ3eyejHGbDNPYn0zsGOijKcvC06iT2pmfyA3vUs6UDzjQh0O6R0wy-M9dtYRYcWMMorkFEWwcF_gE68Z0O6TGweOE6LElQ5ZBBiGWoDWDwRIZsg8-8V85whQX8xpYJrsVxmA2eKYUNgwD4Na-Z3gMoU3Y1NiUKBHUp_XdbzdfWI4pJm5G1l4XthF4KR8GODviRfj9c5rse3eNy6AKoS8HTWP_37zoR1KXXnx7PNn7zvnU5HxT-_mQaGAS8aiQ"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"tracks\":[{\"uri\":\"{{Tracks_Delete}}\"}]}"
+				},
+				"url": {
+					"raw": "{{URL}}/v1/playlists/{{Bollywood New}}/tracks",
+					"host": [
+						"{{URL}}"
+					],
+					"path": [
+						"v1",
+						"playlists",
+						"{{Bollywood New}}",
+						"tracks"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "BQAtBHNLDeXbyyDt5ZaCNGS9AnPfCrSPPggcAdQj96TuFTRFXktxihAgC6-xXoWIVM-xLGB6m9OogWeZtM789tlSdpuUTc676yTpmQaqw7QQdaTDpmdM4ueBf5gGGumlecFC6jrX-22LWe4vH2lpx8CBZUM1aienM62R4tkuzfyNM0gZmbspl8RFvdMphOTTBcfrF9i5YxG-ATFtUjDmsnsF32U-P866ZxiXA2GfIIv9vKc-DL63vrdQKI2YCeunN9CPLCkCOWTPXrRonTaQQwyPfkNK8CpBM1PyIn4uRYJ3cx0R3sG9zEOzWRzQxSaeRbGj9fvxyDGqDw",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "URL",
+			"value": "https://api.spotify.com",
+			"type": "string"
+		},
+		{
+			"key": "User_id",
+			"value": ""
+		},
+		{
+			"key": "Bollywood",
+			"value": ""
+		},
+		{
+			"key": "My Playlist #111",
+			"value": ""
+		},
+		{
+			"key": "Bollywood New",
+			"value": ""
+		},
+		{
+			"key": "Tracks_Uris",
+			"value": ""
+		},
+		{
+			"key": "Tracks_Replace",
+			"value": ""
+		},
+		{
+			"key": "Tracks_Delete",
+			"value": ""
+		}
+	]
+}
