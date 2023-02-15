@@ -19,13 +19,12 @@ This project is aimed at testing the Spotify API using Postman and Newman. It pr
 
 ## Installation and Execution
 1. Clone the repository
-2. Import the `Spotify API Tests.postman_collection.json` file into Postman
-3. Import the `Spotify API Tests.postman_environment.json` file into Postman and set the necessary variables
-4. Start the tests by running "newman run Spotify API Tests.postman_collection.json -r htmlextra"
+2. Import the `SpotifyAPI.postman_collection.json` file into Postman
+3. Start the tests by running "newman run SpotifyAPI.postman_collection.json -r htmlextra"
 
 ## Integration with Jenkins
 1. Set up a Jenkins job to run the tests using Newman
-2. Add a build step to run the command "newman run Spotify API Tests.postman_collection.json -r htmlextra"
+2. Add a build step to run the command "newman run SpotifyAPI.postman_collection.json -r htmlextra"
 3. Configure the job to publish the test results using the Postman plugin
 
 ## Variables
